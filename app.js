@@ -20,12 +20,12 @@ function saveSettings() {
 
 /* ========== AUTO-DETECT REPO FROM URL ========== */
 function detectRepoFromURL() {
-  const path = window.location.pathname.replace(/\/+$/, '').split('/');
+  const parts = window.location.pathname.replace(/\/+$/, '').split('/');
   const host = window.location.hostname;
-  if (host.endsWith('.github.io') && path.length >= 1) {
+  if (host.endsWith('.github.io')) {
     const owner = host.replace('.github.io', '');
-    const repo = path[0] || '';
-    return { owner, repo };
+    const repo = parts.length >= 2 ? parts[1] : '';
+    if (repo) return { owner, repo };
   }
   return null;
 }
