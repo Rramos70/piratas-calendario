@@ -1,4 +1,4 @@
-const CACHE = 'piratas-pwa-v1';
+const CACHE = 'piratas-pwa-v2';
 const ASSETS = [
   '/piratas-calendario/',
   '/piratas-calendario/index.html',
