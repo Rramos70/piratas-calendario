@@ -444,5 +444,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-settings-repo').addEventListener('click', saveRepoSettings);
   document.getElementById('btn-settings-token').addEventListener('click', saveToken);
 
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
   renderHome();
 });
