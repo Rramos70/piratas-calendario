@@ -31,17 +31,12 @@ function detectRepoFromURL() {
 }
 
 /* ========== GITHUB API ========== */
-function ghHeaders(withToken) {
-  const h = { 'Accept': 'application/vnd.github.v3+json' };
-  if (withToken && state.settings.token) {
-    h['Authorization'] = `Bearer ${state.settings.token}`;
-  }
-  return h;
-}
-
 async function ghFetch(url, opts = {}) {
-  const token = opts._withToken !== false && state.settings.token;
-  const headers = { ...ghHeaders(!!token), ...opts.headers };
+  const useToken = opts._withToken !== false && state.settings.token;
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (useToken) headers['Authorization'] = `Bearer ${state.settings.token}`;
+  if (opts.body && typeof opts.body === 'string') headers['Content-Type'] = 'application/json';
+  Object.assign(headers, opts.headers);
   delete opts._withToken;
   const res = await fetch(url, { ...opts, headers });
   if (!res.ok) {
@@ -387,13 +382,22 @@ function saveRepoSettings() {
 
 function saveToken() {
   const token = document.getElementById('set-token').value.trim();
+  const msg = document.getElementById('settings-msg');
+
+  if (!state.settings.owner || !state.settings.repo) {
+    msg.textContent = 'Primero guarda el Owner y Repo en la sección de Repositorio.';
+    msg.className = 'msg error show';
+    return;
+  }
+
   state.settings.token = token;
   saveSettings();
-  const msg = document.getElementById('settings-msg');
+
   if (token) {
+    msg.textContent = 'Validando token...'; msg.className = 'msg success show';
     ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}`, { _withToken: true })
       .then(() => {
-        msg.textContent = 'Token válido. Ya puedes añadir y editar partidos.';
+        msg.textContent = 'Token válido. Modo administrador activo.';
         msg.className = 'msg success show';
         renderSettings();
         renderHome();
