@@ -13,153 +13,115 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="header">
-    <button class="btn-back" id="btn-back" aria-label="Volver">←</button>
-    <h1>🏴‍☠️ <span class="gold">Piratas</span> de Tenerife</h1>
+    <button class="btn-back" id="btn-back" aria-label="Volver">&#8592;</button>
+    <h1><span class="gold">Piratas</span> de Tenerife</h1>
+    <span id="user-badge" style="font-size:.75rem;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;display:none"></span>
   </header>
 
-  <!-- ========== HOME VIEW ========== -->
+  <!-- HOME -->
   <section id="home-view" class="view active">
     <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button class="btn btn-gold" id="btn-add-game">➕ Nuevo Partido</button>
+      <button class="btn btn-gold" id="btn-add-game">+ Nuevo Partido</button>
     </div>
     <div id="home-content"></div>
   </section>
 
-  <!-- ========== CALENDAR VIEW ========== -->
+  <!-- CALENDAR -->
   <section id="calendar-view" class="view">
     <div class="card">
-      <div class="card-title"><span class="emoji">📋</span> Calendario Completo</div>
+      <div class="card-title">Calendario Completo</div>
       <div id="calendar-content"></div>
     </div>
   </section>
 
-  <!-- ========== FORM VIEW ========== -->
+  <!-- TEAM -->
+  <section id="team-view" class="view">
+    <div id="team-content"></div>
+  </section>
+
+  <!-- REGISTER -->
+  <section id="register-view" class="view">
+    <div class="card">
+      <div class="card-title">Registro de Jugador</div>
+      <div class="msg" id="reg-msg"></div>
+      <div class="form-group"><label>Nombre completo *</label><input type="text" id="reg-name" placeholder="Ej: Juan Pérez"></div>
+      <div class="form-group"><label>Contraseña *</label><input type="password" id="reg-pass" placeholder="Mínimo 4 caracteres"></div>
+      <div class="form-group"><label>Teléfono</label><input type="tel" id="reg-phone" placeholder="Ej: 612345678"></div>
+      <div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="reg-dob"></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="reg-email" placeholder="ej@correo.com"></div>
+      <div class="btn-group">
+        <button class="btn btn-gray" id="btn-reg-cancel">Cancelar</button>
+        <button class="btn btn-gold" id="btn-reg-save">Registrarse</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME FORM -->
   <section id="form-view" class="view">
     <div class="card">
-      <div class="card-title"><span id="form-title">➕ Nuevo Partido</span></div>
+      <div class="card-title"><span id="form-title">Nuevo Partido</span></div>
       <div class="msg" id="form-msg"></div>
-
-      <div class="form-group">
-        <label>Fecha *</label>
-        <input type="date" id="game-date">
-      </div>
-
+      <div class="form-group"><label>Fecha *</label><input type="date" id="game-date"></div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Hora</label>
-          <input type="time" id="game-time">
-        </div>
-        <div class="form-group">
-          <label>Estadio</label>
-          <input type="text" id="game-stadium" placeholder="Ej: Campo La Salle">
-        </div>
+        <div class="form-group"><label>Hora</label><input type="time" id="game-time"></div>
+        <div class="form-group"><label>Estadio</label><input type="text" id="game-stadium" placeholder="Ej: Campo La Salle"></div>
       </div>
-
       <div class="form-row">
-        <div class="form-group">
-          <label>Torneo</label>
-          <input type="text" id="game-tournament" placeholder="Ej: Liga Cabildo 2026">
-        </div>
-        <div class="form-group">
-          <label>Rival *</label>
-          <input type="text" id="game-rival" placeholder="Nombre del equipo">
-        </div>
+        <div class="form-group"><label>Torneo</label><input type="text" id="game-tournament" placeholder="Ej: Liga Cabildo 2026"></div>
+        <div class="form-group"><label>Rival *</label><input type="text" id="game-rival" placeholder="Nombre del equipo"></div>
       </div>
-
       <div class="form-row">
-        <div class="form-group">
-          <label>Local / Visitante</label>
-          <select id="game-homeaway">
-            <option value="Local">🏠 Local</option>
-            <option value="Visitante">✈️ Visitante</option>
-          </select>
+        <div class="form-group"><label>Local / Visitante</label>
+          <select id="game-homeaway"><option value="Local">Local</option><option value="Visitante">Visitante</option></select>
         </div>
-        <div class="form-group">
-          <label>Estado</label>
-          <select id="game-status">
-            <option value="Por Jugar">⏳ Por Jugar</option>
-            <option value="Jugado">✅ Jugado</option>
-          </select>
+        <div class="form-group"><label>Estado</label>
+          <select id="game-status"><option value="Por Jugar">Por Jugar</option><option value="Jugado">Jugado</option></select>
         </div>
       </div>
-
       <div id="score-fields" style="display:none">
         <div class="form-row-3">
-          <div class="form-group">
-            <label>Score <span class="gold">Piratas</span></label>
-            <input type="number" id="game-homescore" min="0" placeholder="0">
-          </div>
+          <div class="form-group"><label>Piratas</label><input type="number" id="game-homescore" min="0" placeholder="0"></div>
           <div style="display:flex;align-items:center;justify-content:center;padding-top:24px;font-size:1.5rem;font-weight:800;color:var(--gray)">-</div>
-          <div class="form-group">
-            <label>Score Rival</label>
-            <input type="number" id="game-awayscore" min="0" placeholder="0">
-          </div>
+          <div class="form-group"><label>Rival</label><input type="number" id="game-awayscore" min="0" placeholder="0"></div>
         </div>
       </div>
-
       <div class="btn-group">
         <button class="btn btn-gray" id="btn-form-cancel">Cancelar</button>
-        <button class="btn btn-gold" id="btn-form-save">💾 Guardar</button>
+        <button class="btn btn-gold" id="btn-form-save">Guardar</button>
       </div>
     </div>
   </section>
 
-  <!-- ========== SETTINGS VIEW ========== -->
+  <!-- SETTINGS -->
   <section id="settings-view" class="view">
     <div class="card">
-      <div class="card-title"><span class="emoji">⚙️</span> Ajustes</div>
-
+      <div class="card-title">Ajustes</div>
       <div id="admin-status" class="msg"></div>
-
       <div class="settings-info">
-        <strong>📌 ¿Cómo funciona?</strong><br>
-        <strong>Jugadores:</strong> Solo necesitas configurar el <strong>repositorio</strong> (Owner + Repo) para ver el calendario.<br><br>
-        <strong>Administrador:</strong> Además del repositorio, añade un <strong>Token de GitHub</strong> para poder crear, editar y eliminar partidos.<br><br>
-        <strong>Pasos para el Token:</strong><br>
-        1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → "Generate new token"<br>
-        2. Marca el scope <code>repo</code> y genera<br>
-        3. Copia el token (empieza con <code>ghp_</code>)
+        <strong>Ver calendario:</strong> Solo necesitas el Owner y Repo.<br><br>
+        <strong>Administrar:</strong> Añade un Token de GitHub (Settings > Developer settings > Personal access tokens > Tokens classic, scope <code>repo</code>).
       </div>
-
       <div class="msg" id="settings-msg"></div>
-
-      <h3 style="font-size:.9rem;color:var(--gray);margin-bottom:8px">📂 Repositorio (todos los jugadores)</h3>
+      <h3>Repositorio</h3>
       <div class="form-row">
-        <div class="form-group">
-          <label>Owner (usuario de GitHub)</label>
-          <input type="text" id="set-owner" placeholder="ej: tu-usuario">
-        </div>
-        <div class="form-group">
-          <label>Repo (nombre del repositorio)</label>
-          <input type="text" id="set-repo" placeholder="ej: piratas-calendario">
-        </div>
+        <div class="form-group"><label>Owner</label><input type="text" id="set-owner" placeholder="usuario"></div>
+        <div class="form-group"><label>Repo</label><input type="text" id="set-repo" placeholder="repositorio"></div>
       </div>
-      <button class="btn btn-blue" id="btn-settings-repo">💾 Guardar Repositorio</button>
-
-      <hr style="margin:20px 0;border-color:var(--gray-light)">
-
-      <h3 style="font-size:.9rem;color:var(--gray);margin-bottom:8px">🔑 Administrador (opcional)</h3>
-      <div class="form-group">
-        <label>GitHub Token</label>
-        <input type="password" id="set-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      </div>
-      <button class="btn btn-gold" id="btn-settings-token">🔌 Validar Token</button>
+      <button class="btn btn-blue" id="btn-settings-repo">Guardar Repositorio</button>
+      <hr>
+      <h3>Token de Administrador</h3>
+      <div class="form-group"><label>GitHub Token</label><input type="password" id="set-token" placeholder="ghp_..."></div>
+      <button class="btn btn-gold" id="btn-settings-token">Validar Token</button>
     </div>
   </section>
 
-  <!-- ========== BOTTOM NAV ========== -->
-  <nav class="bottom-nav" id="bottom-nav">
-    <button class="nav-btn active" data-view="home-view">
-      <span class="nav-icon">🏠</span> Inicio
-    </button>
-    <button class="nav-btn" data-view="calendar-view">
-      <span class="nav-icon">📋</span> Calendario
-    </button>
-    <button class="nav-btn" data-view="settings-view">
-      <span class="nav-icon">⚙️</span> Ajustes
-    </button>
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="home-view"><span class="nav-icon">&#x1F3E0;</span> Inicio</button>
+    <button class="nav-btn" data-view="calendar-view"><span class="nav-icon">&#x1F4CB;</span> Calendario</button>
+    <button class="nav-btn" data-view="team-view"><span class="nav-icon">&#x1F465;</span> Equipo</button>
+    <button class="nav-btn" data-view="settings-view"><span class="nav-icon">&#x2699;</span> Ajustes</button>
   </nav>
 
   <script src="app.js"></script>
