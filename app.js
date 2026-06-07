@@ -58,17 +58,17 @@ async function fetchGames() {
   return state.games;
 }
 async function createGame(g) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('crear partidos')) return;
   const d = await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}/issues`, { method: 'POST', body: JSON.stringify({ title: issueTitle(g), body: JSON.stringify(g), labels: issueLabels(g) }) });
   const ng = parseGame(d); state.games.push(ng); state.games.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)); return ng;
 }
 async function updateGame(num, g) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('editar partidos')) return;
   await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}/issues/${num}`, { method: 'PATCH', body: JSON.stringify({ title: issueTitle(g), body: JSON.stringify(g), labels: issueLabels(g) }) });
   const idx = state.games.findIndex(x => x._issueNumber === num); if (idx !== -1) { g._issueNumber = num; state.games[idx] = g; }
 }
 async function deleteGame(num) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('eliminar partidos')) return;
   await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}/issues/${num}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) });
   state.games = state.games.filter(g => g._issueNumber !== num);
 }
@@ -88,24 +88,24 @@ function userLabels(u) {
   return l;
 }
 async function createUser(u) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('crear usuarios')) return;
   const body = { title: u.name, body: JSON.stringify(u), labels: userLabels(u) };
   const d = await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}/issues`, { method: 'POST', body: JSON.stringify(body) });
   const nu = parseUser(d); if (nu) state.users.push(nu); return nu;
 }
 async function updateUser(num, u) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('modificar usuarios')) return;
   await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}/issues/${num}`, { method: 'PATCH', body: JSON.stringify({ title: u.name, body: JSON.stringify(u), labels: userLabels(u) }) });
 }
 async function setUserActive(num, active) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('cambiar estado de usuarios')) return;
   const u = state.users.find(x => x._issueNumber === num); if (!u) return;
   u.active = active;
   await updateUser(num, u);
   const idx = state.users.findIndex(x => x._issueNumber === num); if (idx !== -1) { state.users[idx]._active = active; state.users[idx].active = active; }
 }
 async function setUserRole(num, role) {
-  if (!state.settings.token) throw new Error('Token requerido');
+  if (!requireToken('cambiar rol de usuarios')) return;
   const u = state.users.find(x => x._issueNumber === num); if (!u) return;
   u.role = role;
   await updateUser(num, u);
@@ -140,6 +140,18 @@ function todayStr() { return new Date().toISOString().split('T')[0]; }
 function hasToken() { return !!state.settings.token; }
 function isAdmin() { return hasToken() || (state.currentUser && state.currentUser._role === 'admin'); }
 function isLogged() { return !!state.currentUser; }
+function requireToken(action) {
+  if (!state.settings.token) {
+    const msg = `Se necesita el Token de GitHub en Ajustes para ${action}. Ve a Ajustes e ingresa el token.`;
+    if (state.currentUser && state.currentUser._role === 'admin') {
+      alert(msg);
+    } else {
+      throw new Error(msg);
+    }
+    return false;
+  }
+  return true;
+}
 function updateUserBadge() {
   const el = document.getElementById('user-badge');
   if (state.currentUser) { el.textContent = state.currentUser.name; el.style.display = 'block'; }
@@ -310,9 +322,11 @@ function renderPlayerProfile(el) {
 
 function renderAdminPanel(el) {
   const users = state.users;
+  const hasToken = !!state.settings.token;
   let html = `<div class="card"><div class="card-title">Administrar Equipo</div>
     <div class="msg" id="admin-user-msg"></div>
-    <p style="font-size:.85rem;color:var(--gray);margin-bottom:10px">Admin: ${state.currentUser?state.currentUser.name:'Token'}</p>`;
+    <p style="font-size:.85rem;color:var(--gray);margin-bottom:10px">Admin: ${state.currentUser?state.currentUser.name:'Token'}</p>
+    ${!hasToken?'<div class="msg error show" style="margin-bottom:10px;font-size:.85rem">⚠ Token de GitHub no configurado. Las acciones de administrador requieren el token en <strong>Ajustes</strong>.</div>':''}`;
 
   // Create user form
   html += `<details style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:600;color:var(--blue);font-size:.85rem">+ Crear nuevo usuario</summary>
@@ -384,8 +398,13 @@ async function doLogin() {
     if (user.password !== hash) { msg.textContent = 'Contrasena incorrecta'; msg.className = 'msg error show'; return; }
     if (!user._active) { msg.textContent = 'Tu cuenta esta inactiva. Espera a que el administrador la active.'; msg.className = 'msg error show'; return; }
     state.currentUser = user; saveSession(); updateUserBadge();
-    msg.textContent = 'Sesion iniciada!'; msg.className = 'msg success show';
-    setTimeout(() => { showView('home-view'); renderHome(); }, 500);
+    if (user._role === 'admin' && !state.settings.token) {
+      msg.textContent = 'Sesion iniciada como admin. Configura el Token en Ajustes para poder realizar acciones.'; msg.className = 'msg warning show';
+      setTimeout(() => { showView('settings-view'); renderSettings(); }, 2000);
+    } else {
+      msg.textContent = 'Sesion iniciada!'; msg.className = 'msg success show';
+      setTimeout(() => { showView('home-view'); renderHome(); }, 500);
+    }
   } catch (e) { msg.textContent = 'Error: ' + e.message; msg.className = 'msg error show'; }
 }
 
@@ -486,7 +505,16 @@ function renderSettings() {
   document.getElementById('set-owner').value = s.owner||''; document.getElementById('set-repo').value = s.repo||''; document.getElementById('set-token').value = s.token||'';
   document.getElementById('settings-msg').classList.remove('show');
   const se = document.getElementById('admin-status');
-  if (se) { se.textContent=hasToken()?'Modo Administrador activo':'Solo lectura'; se.className=hasToken()?'msg success show':'msg info show'; se.style.display='block'; }
+  if (se) {
+    if (hasToken()) {
+      se.textContent='Modo Administrador activo (Token configurado)'; se.className='msg success show';
+    } else if (state.currentUser && state.currentUser._role === 'admin') {
+      se.textContent='Admin: '+state.currentUser.name+' - Falta Token para acciones de escritura'; se.className='msg warning show';
+    } else {
+      se.textContent='Solo lectura - Configura el Token para administrar'; se.className='msg info show';
+    }
+    se.style.display='block';
+  }
 }
 function saveRepoSettings() {
   state.settings.owner=document.getElementById('set-owner').value.trim(); state.settings.repo=document.getElementById('set-repo').value.trim(); saveSettings();
