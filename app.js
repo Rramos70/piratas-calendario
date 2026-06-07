@@ -278,14 +278,11 @@ async function renderCalendar() {
 /* ========== TEAM VIEW ========== */
 async function renderTeam() {
   const el = document.getElementById('team-content');
-  if (state.currentUser) {
-    const u = state.currentUser;
-    if (isAdmin()) {
-      try { await fetchUsers(); } catch {}
-      renderAdminPanel(el);
-    } else {
-      renderPlayerProfile(el);
-    }
+  if (isAdmin()) {
+    try { await fetchUsers(); } catch {}
+    renderAdminPanel(el);
+  } else if (state.currentUser) {
+    renderPlayerProfile(el);
   } else {
     renderLoginForm(el);
   }
@@ -447,7 +444,7 @@ async function adminCreateUser() {
 async function toggleUserActive(num) {
   try {
     const u = state.users.find(x => x._issueNumber == num);
-    if (!u) return;
+    if (!u) { alert('Usuario no encontrado en la lista'); return; }
     await setUserActive(num, !u._active);
     renderTeam();
   } catch (e) { alert('Error: ' + e.message); }
@@ -516,15 +513,18 @@ function saveRepoSettings() {
   state.settings.owner=document.getElementById('set-owner').value.trim(); state.settings.repo=document.getElementById('set-repo').value.trim(); saveSettings();
   const m=document.getElementById('settings-msg'); m.textContent='Repositorio guardado'; m.className='msg success show'; renderHome();
 }
-function saveToken() {
+async function saveToken() {
   const token=document.getElementById('set-token').value.trim(); const msg=document.getElementById('settings-msg');
   if (!state.settings.owner||!state.settings.repo) { msg.textContent='Guarda Owner y Repo primero'; msg.className='msg error show'; return; }
   state.settings.token=token; saveSettings();
   if (token) {
     msg.textContent='Validando...'; msg.className='msg success show';
-    ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}`, {_withToken:true})
-      .then(()=>{ msg.textContent='Token valido'; msg.className='msg success show'; renderSettings(); renderHome(); })
-      .catch(e=>{ msg.textContent='Token invalido: '+e.message; msg.className='msg error show'; state.settings.token=''; saveSettings(); renderSettings(); });
+    try {
+      await ghFetch(`${GH_BASE}/repos/${state.settings.owner}/${state.settings.repo}`, {_withToken:true});
+      msg.textContent='Token valido'; msg.className='msg success show'; renderSettings(); renderHome();
+    } catch (e) {
+      msg.textContent='Token invalido: '+e.message; msg.className='msg error show'; state.settings.token=''; saveSettings(); renderSettings();
+    }
   } else { msg.textContent='Token eliminado'; msg.className='msg info show'; renderSettings(); renderHome(); }
 }
 
