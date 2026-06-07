@@ -99,6 +99,7 @@ async function updateUser(num, u) {
 }
 async function setUserActive(num, active) {
   if (!requireToken('cambiar estado de usuarios')) return;
+  num = Number(num);
   const u = state.users.find(x => x._issueNumber === num); if (!u) return;
   u.active = active;
   await updateUser(num, u);
@@ -106,6 +107,7 @@ async function setUserActive(num, active) {
 }
 async function setUserRole(num, role) {
   if (!requireToken('cambiar rol de usuarios')) return;
+  num = Number(num);
   const u = state.users.find(x => x._issueNumber === num); if (!u) return;
   u.role = role;
   await updateUser(num, u);
@@ -142,13 +144,7 @@ function isAdmin() { return hasToken() || (state.currentUser && state.currentUse
 function isLogged() { return !!state.currentUser; }
 function requireToken(action) {
   if (!state.settings.token) {
-    const msg = `Se necesita el Token de GitHub en Ajustes para ${action}. Ve a Ajustes e ingresa el token.`;
-    if (state.currentUser && state.currentUser._role === 'admin') {
-      alert(msg);
-    } else {
-      throw new Error(msg);
-    }
-    return false;
+    throw new Error(`Se necesita el Token de GitHub en Ajustes para ${action}. Ve a Ajustes e ingresa el token.`);
   }
   return true;
 }
