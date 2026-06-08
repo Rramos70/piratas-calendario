@@ -52,7 +52,7 @@ function parseGame(i) { try { const g = JSON.parse(i.body); g._issueNumber = i.n
 async function fetchGames() {
   const { owner, repo } = state.settings;
   if (!owner || !repo) return [];
-  const data = await ghFetch(`${GH_BASE}/repos/${owner}/${repo}/issues?labels=${LABEL_GAME}&state=all&per_page=100`, { _withToken: false });
+  const data = await ghFetch(`${GH_BASE}/repos/${owner}/${repo}/issues?labels=${LABEL_GAME}&state=open&per_page=100`, { _withToken: false });
   state.games = (data||[]).map(parseGame).filter(Boolean);
   state.games.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   return state.games;
@@ -195,8 +195,6 @@ async function renderGameCard(game, title) {
   const ps = game.homeAway === 'Local' ? game.homeScore : game.awayScore;
   const rs = game.homeAway === 'Local' ? game.awayScore : game.homeScore;
   const win = played && ps > rs; const loss = played && ps < rs;
-  const isAdm = isAdmin();
-
   let scoreHtml = '';
   if (played && game.homeScore != null && game.awayScore != null) {
     scoreHtml = `<div class="score-box ${win?'win':loss?'loss':'pending'}"><div class="score-display"><span>${ps}</span><span class="dash">-</span><span>${rs}</span></div><div class="score-label ${win?'win-label':loss?'loss-label':'pending-label'}">${win?'VICTORIA':loss?'DERROTA':'EMPATE'}</div></div>`;
@@ -221,8 +219,6 @@ async function renderGameCard(game, title) {
     confirmHtml = `<div style="margin-top:8px;font-size:.8rem;color:var(--gray)"><a href="#" onclick="showView('team-view');return false">Inicia sesion</a> para confirmar asistencia</div>`;
   }
 
-  const actions = isAdm ? `<div class="btn-group" style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="editGame(${game._issueNumber})">Editar</button><button class="btn btn-red btn-sm" onclick="confirmDelete(${game._issueNumber})">Eliminar</button></div>` : '';
-
   return `<div class="card game-card ${played?'played':''}">
     <div class="card-title">${title}</div>
     <div class="game-header">
@@ -237,7 +233,6 @@ async function renderGameCard(game, title) {
       <span class="badge ${played?'done':'pend'}">${played?'Jugado':'Por Jugar'}</span>
     </div>
     ${confirmHtml}
-    ${actions}
   </div>`;
 }
 
