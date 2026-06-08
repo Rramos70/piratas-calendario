@@ -12,6 +12,10 @@ body { padding-bottom:80px; }
 .header h1 { font-size:1.05rem; font-weight:700; flex:1; }
 .header .gold { color:var(--gold); }
 .btn-back { background:none; border:none; color:var(--white); font-size:1.4rem; cursor:pointer; padding:2px; display:none; }
+.header-auth { display:flex; align-items:center; gap:6px; }
+.btn-header-login, .btn-header-logout { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); color:var(--white); padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:600; cursor:pointer; touch-action:manipulation; }
+.btn-header-login:active, .btn-header-logout:active { transform:scale(.95); background:rgba(255,255,255,.25); }
+#user-badge { font-size:.75rem; font-weight:600; white-space:nowrap; }
 
 /* BOTTOM NAV */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--navy); display:flex; justify-content:space-around; align-items:center; padding:4px 0 env(safe-area-inset-bottom,4px); z-index:100; box-shadow:0 -2px 8px rgba(0,0,0,.2); }

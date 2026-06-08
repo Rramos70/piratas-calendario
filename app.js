@@ -149,9 +149,19 @@ function requireToken(action) {
   return true;
 }
 function updateUserBadge() {
-  const el = document.getElementById('user-badge');
-  if (state.currentUser) { el.textContent = state.currentUser.name; el.style.display = 'block'; }
-  else { el.style.display = 'none'; }
+  const badge = document.getElementById('user-badge');
+  const btnLogin = document.getElementById('btn-header-login');
+  const btnLogout = document.getElementById('btn-header-logout');
+  if (state.currentUser) {
+    badge.textContent = state.currentUser.name;
+    badge.style.display = 'inline';
+    btnLogin.style.display = 'none';
+    btnLogout.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+    btnLogin.style.display = 'inline-block';
+    btnLogout.style.display = 'none';
+  }
 }
 
 function showView(viewId) {
@@ -554,6 +564,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-form-save').addEventListener('click', saveGame);
   document.getElementById('btn-settings-repo').addEventListener('click', saveRepoSettings);
   document.getElementById('btn-settings-token').addEventListener('click', saveToken);
+  document.getElementById('btn-header-login').addEventListener('click', () => { showView('team-view'); renderTeam(); });
+  document.getElementById('btn-header-logout').addEventListener('click', () => { clearSession(); updateUserBadge(); showView('home-view'); renderHome(); });
   document.getElementById('btn-reg-cancel').addEventListener('click', ()=>{ showView('team-view'); renderTeam(); });
   document.getElementById('btn-reg-save').addEventListener('click', doRegister);
 
